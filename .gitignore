@@ -1,0 +1,8 @@
+node_modules/
+.env
+.env.*
+coverage/
+*.log
+ecommerce_activity.log
+blog_activity.log
+.DS_Store

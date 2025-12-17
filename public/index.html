@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="el">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>E-commerce API Playground</title>
+    <style>
+      :root {
+        color-scheme: light;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        background: #f5f7fb;
+        color: #1f2a44;
+      }
+      header {
+        background: linear-gradient(135deg, #1f4f9c, #2f7cc0);
+        color: #fff;
+        padding: 24px 20px 28px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+      h1 {
+        margin: 0 0 6px;
+        font-size: 24px;
+      }
+      p.lead {
+        margin: 0;
+        opacity: 0.9;
+      }
+      main {
+        max-width: 1200px;
+        margin: -30px auto 40px;
+        padding: 0 16px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 16px;
+      }
+      section.card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(31, 42, 68, 0.06);
+        padding: 16px;
+        border: 1px solid #e5e9f1;
+      }
+      section.card h2 {
+        margin: 0 0 8px;
+        font-size: 18px;
+        color: #163763;
+      }
+      section.card p.helper {
+        margin: 0 0 10px;
+        font-size: 13px;
+        color: #5a6b85;
+      }
+      .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        margin-left: 8px;
+      }
+      .badge.admin {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+      .badge.auth {
+        background: #fef3c7;
+        color: #d97706;
+      }
+      .badge.public {
+        background: #d1fae5;
+        color: #059669;
+      }
+      form {
+        display: grid;
+        gap: 10px;
+      }
+      label {
+        display: grid;
+        gap: 4px;
+        font-size: 14px;
+        color: #2c3d59;
+      }
+      input,
+      textarea,
+      select {
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: 1px solid #d0d8e6;
+        font: inherit;
+        background: #fdfefe;
+      }
+      textarea {
+        min-height: 80px;
+        resize: vertical;
+      }
+      button {
+        background: linear-gradient(135deg, #1f4f9c, #2f7cc0);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.05s ease, box-shadow 0.15s ease;
+      }
+      button:hover {
+        box-shadow: 0 8px 20px rgba(31, 79, 156, 0.18);
+      }
+      button:active {
+        transform: translateY(1px);
+      }
+      button.danger {
+        background: linear-gradient(135deg, #dc2626, #ef4444);
+      }
+      .output {
+        margin-top: 22px;
+        background: #0f172a;
+        color: #e2e8f0;
+        border-radius: 12px;
+        padding: 12px;
+        overflow: auto;
+        max-height: 420px;
+        border: 1px solid #1f2a44;
+      }
+      .output pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: 13px;
+      }
+      .list-box {
+        margin-top: 12px;
+        padding: 10px;
+        border: 1px solid #dce2ec;
+        border-radius: 10px;
+        background: #f8fbff;
+        max-height: 280px;
+        overflow: auto;
+        font-size: 14px;
+      }
+      .list-box ul {
+        padding-left: 18px;
+        margin: 0;
+      }
+      .list-box li {
+        margin-bottom: 6px;
+      }
+      .muted {
+        color: #5b6b83;
+        font-size: 13px;
+      }
+      .section-title {
+        grid-column: 1 / -1;
+        margin: 20px 0 10px;
+        padding: 10px;
+        background: #e2e8f0;
+        border-radius: 8px;
+        font-weight: 600;
+        color: #1f2a44;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>E-commerce API Playground</h1>
+      <p class="lead">Test the e-commerce API endpoints</p>
+      <p class="muted">
+        Base URL: same origin (e.g. <code>http://localhost:3000</code>)
+      </p>
+    </header>
+
+    <main>
+      <div class="grid">
+        <!-- Token Section -->
+        <section class="card">
+          <h2>Token (Authorization)</h2>
+          <p class="helper">Paste the JWT from /auth/login</p>
+          <form id="token-form">
+            <label>JWT Token
+              <input id="token-input" name="token" placeholder="eyJhbGciOi..." />
+            </label>
+            <button type="submit">Save Token</button>
+          </form>
+          <p class="muted">
+            Token goes in header: Authorization: Bearer &lt;token&gt;
+          </p>
+        </section>
+
+        <!-- AUTH Section -->
+        <div class="section-title">Authentication</div>
+
+        <section class="card">
+          <h2>Sign Up <span class="badge public">PUBLIC</span></h2>
+          <p class="helper">POST /auth/signup</p>
+          <form id="signup-form">
+            <label>Username <input name="username" required /></label>
+            <label>Email <input name="email" type="email" required /></label>
+            <label>Password <input name="password" type="password" required placeholder="Min 8 chars, 1 upper, 1 lower, 1 number, 1 special" /></label>
+            <label>Role
+              <select name="role">
+                <option value="CUSTOMER">CUSTOMER</option>
+                <option value="ADMIN">ADMIN</option>
+              </select>
+            </label>
+            <button type="submit">Sign Up</button>
+          </form>
+        </section>
+
+        <section class="card">
+          <h2>Login <span class="badge public">PUBLIC</span></h2>
+          <p class="helper">POST /auth/login</p>
+          <form id="login-form">
+            <label>Email <input name="email" type="email" required /></label>
+            <label>Password <input name="password" type="password" required /></label>
+            <button type="submit">Login</button>
+          </form>
+        </section>
+
+        <!-- USERS Section -->
+        <div class="section-title">Users</div>
+
+        <section class="card">
+          <h2>Get User by ID <span class="badge auth">AUTH</span></h2>
+          <p class="helper">GET /users/:id</p>
+          <form id="get-user-form">
+            <label>User ID <input name="id" type="number" min="1" required /></label>
+            <button type="submit">Get User</button>
+          </form>
+        </section>
+
+        <!-- PRODUCTS Section -->
+        <div class="section-title">Products</div>
+
+        <section class="card">
+          <h2>List Products <span class="badge auth">AUTH</span></h2>
+          <p class="helper">GET /products</p>
+          <form id="list-products-form">
+            <button type="submit">Get Products</button>
+          </form>
+          <div class="list-box" id="products-list">No data yet.</div>
+        </section>
+
+        <section class="card">
+          <h2>Get Product by ID <span class="badge auth">AUTH</span></h2>
+          <p class="helper">GET /products/:id</p>
+          <form id="get-product-form">
+            <label>Product ID <input name="id" type="number" min="1" required /></label>
+            <button type="submit">Get Product</button>
+          </form>
+        </section>
+
+        <section class="card">
+          <h2>Create Product <span class="badge admin">ADMIN</span></h2>
+          <p class="helper">POST /products</p>
+          <form id="create-product-form">
+            <label>Name <input name="name" required /></label>
+            <label>Description <textarea name="description"></textarea></label>
+            <label>Price <input name="price" type="number" step="0.01" min="0.01" required /></label>
+            <label>Stock <input name="stock" type="number" min="0" value="0" /></label>
+            <button type="submit">Create Product</button>
+          </form>
+        </section>
+
+        <section class="card">
+          <h2>Update Product <span class="badge admin">ADMIN</span></h2>
+          <p class="helper">PATCH /products/:id</p>
+          <form id="update-product-form">
+            <label>Product ID <input name="id" type="number" min="1" required /></label>
+            <label>Name (optional) <input name="name" /></label>
+            <label>Description (optional) <textarea name="description"></textarea></label>
+            <label>Price (optional) <input name="price" type="number" step="0.01" min="0.01" /></label>
+            <label>Stock (optional) <input name="stock" type="number" min="0" /></label>
+            <button type="submit">Update Product</button>
+          </form>
+        </section>
+
+        <section class="card">
+          <h2>Delete Product <span class="badge admin">ADMIN</span></h2>
+          <p class="helper">DELETE /products/:id</p>
+          <form id="delete-product-form">
+            <label>Product ID <input name="id" type="number" min="1" required /></label>
+            <button type="submit" class="danger">Delete Product</button>
+          </form>
+        </section>
+
+        <!-- ORDERS Section -->
+        <div class="section-title">Orders</div>
+
+        <section class="card">
+          <h2>Create Order <span class="badge auth">AUTH</span></h2>
+          <p class="helper">POST /orders</p>
+          <form id="create-order-form">
+            <label>Items (JSON array)
+              <textarea name="items" placeholder='[{"productId": 1, "quantity": 2}]' required></textarea>
+            </label>
+            <button type="submit">Place Order</button>
+          </form>
+        </section>
+
+        <section class="card">
+          <h2>Get Order by ID <span class="badge auth">AUTH</span></h2>
+          <p class="helper">GET /orders/:id</p>
+          <form id="get-order-form">
+            <label>Order ID <input name="id" type="number" min="1" required /></label>
+            <button type="submit">Get Order</button>
+          </form>
+        </section>
+      </div>
+
+      <div class="output" aria-live="polite">
+        <pre id="output">Waiting for first request...</pre>
+      </div>
+    </main>
+
+    <script>
+      const outputEl = document.getElementById("output");
+      const productsListEl = document.getElementById("products-list");
+      let authToken = "";
+
+      function show(data) {
+        const time = new Date().toLocaleTimeString("en-US");
+        const text =
+          "[" +
+          time +
+          "] " +
+          (typeof data === "string" ? data : JSON.stringify(data, null, 2));
+        outputEl.textContent = text;
+      }
+
+      async function request(url, options = {}, onSuccess) {
+        try {
+          const headers = {
+            "Content-Type": "application/json",
+            ...(authToken ? { Authorization: "Bearer " + authToken } : {}),
+          };
+          const res = await fetch(url, { headers, ...options });
+          const text = await res.text();
+          let body = {};
+          try {
+            body = text ? JSON.parse(text) : {};
+          } catch {
+            body = text || {};
+          }
+          if (!res.ok) {
+            show({ status: res.status, error: body.error || body, details: body.details });
+            return;
+          }
+          if (onSuccess) onSuccess(body);
+          show(body);
+        } catch (err) {
+          show("Network/client error: " + err.message);
+        }
+      }
+
+      function renderList(el, data) {
+        if (!Array.isArray(data) || data.length === 0) {
+          el.textContent = "No data available.";
+          return;
+        }
+        const items = data
+          .map((item) => "<li>" + JSON.stringify(item) + "</li>")
+          .join("");
+        el.innerHTML = "<ul>" + items + "</ul>";
+      }
+
+      // Token form
+      document.getElementById("token-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const val = document.getElementById("token-input").value.trim();
+        authToken = val;
+        show(val ? "Token saved" : "Token cleared");
+      });
+
+      // Sign up
+      document.getElementById("signup-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const form = e.target;
+        request("/auth/signup", {
+          method: "POST",
+          body: JSON.stringify({
+            username: form.username.value.trim(),
+            email: form.email.value.trim(),
+            password: form.password.value,
+            role: form.role.value,
+          }),
+        });
+      });
+
+      // Login
+      document.getElementById("login-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const form = e.target;
+        request("/auth/login", {
+          method: "POST",
+          body: JSON.stringify({
+            email: form.email.value.trim(),
+            password: form.password.value,
+          }),
+        }, (body) => {
+          if (body.token) {
+            authToken = body.token;
+            document.getElementById("token-input").value = body.token;
+            show({ ...body, message: "Login successful! Token auto-saved." });
+          }
+        });
+      });
+
+      // Get user by ID
+      document.getElementById("get-user-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const id = e.target.id.value;
+        request(`/users/${id}`);
+      });
+
+      // List products
+      document.getElementById("list-products-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        request("/products", {}, (body) => renderList(productsListEl, body));
+      });
+
+      // Get product by ID
+      document.getElementById("get-product-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const id = e.target.id.value;
+        request(`/products/${id}`);
+      });
+
+      // Create product
+      document.getElementById("create-product-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const payload = {
+          name: form.name.value.trim(),
+          price: parseFloat(form.price.value),
+        };
+        if (form.description.value.trim()) payload.description = form.description.value.trim();
+        if (form.stock.value) payload.stock = parseInt(form.stock.value);
+        request("/products", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+      });
+
+      // Update product
+      document.getElementById("update-product-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const payload = {};
+        if (form.name.value.trim()) payload.name = form.name.value.trim();
+        if (form.description.value.trim()) payload.description = form.description.value.trim();
+        if (form.price.value) payload.price = parseFloat(form.price.value);
+        if (form.stock.value !== "") payload.stock = parseInt(form.stock.value);
+
+        if (Object.keys(payload).length === 0) {
+          show("Please provide at least one field to update");
+          return;
+        }
+        request(`/products/${form.id.value}`, {
+          method: "PATCH",
+          body: JSON.stringify(payload),
+        });
+      });
+
+      // Delete product
+      document.getElementById("delete-product-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const id = e.target.id.value;
+        if (confirm("Are you sure you want to delete this product?")) {
+          request(`/products/${id}`, { method: "DELETE" });
+        }
+      });
+
+      // Create order
+      document.getElementById("create-order-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const form = e.target;
+        let items;
+        try {
+          items = JSON.parse(form.items.value);
+        } catch {
+          show("Invalid JSON format for items");
+          return;
+        }
+        request("/orders", {
+          method: "POST",
+          body: JSON.stringify({ items }),
+        });
+      });
+
+      // Get order by ID
+      document.getElementById("get-order-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const id = e.target.id.value;
+        request(`/orders/${id}`);
+      });
+    </script>
+  </body>
+</html>
