@@ -165,6 +165,15 @@ describe("Orders API endpoints", () => {
       expect(response.body).toHaveProperty('id', orderId);
     });
 
+    it("Should return 400 for invalid order ID", async () => {
+      const response = await request(app)
+        .get('/orders/notanumber')
+        .set('Authorization', `Bearer ${customerToken}`)
+        .expect(400);
+
+      expect(response.body).toHaveProperty('error', 'Order id must be a number');
+    });
+
     it("Should return 404 for non-existent order", async () => {
       const response = await request(app)
         .get('/orders/99999')
@@ -172,6 +181,26 @@ describe("Orders API endpoints", () => {
         .expect(404);
 
       expect(response.body).toHaveProperty('error', 'Order not found');
+    });
+
+    it("Should deny access to other user's order", async () => {
+      // Create another customer
+      await request(app).post('/auth/signup').send({
+        username: "othercustomer",
+        email: "othercustomer@example.com",
+        password: "Other@1234"
+      });
+      const otherLogin = await request(app).post('/auth/login').send({
+        email: "othercustomer@example.com",
+        password: "Other@1234"
+      });
+
+      const response = await request(app)
+        .get(`/orders/${orderId}`)
+        .set('Authorization', `Bearer ${otherLogin.body.token}`)
+        .expect(403);
+
+      expect(response.body).toHaveProperty('error');
     });
   });
 });
